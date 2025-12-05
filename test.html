@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>公益沙龙报名签到轻应用原型</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #1f2933;
+      background: #f5f6fa;
+    }
+    body {
+      margin: 0;
+      background: #f5f6fa;
+    }
+    header {
+      background: linear-gradient(120deg, #42a5f5, #38c172);
+      color: #fff;
+      padding: 24px 16px 40px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    main {
+      max-width: 1100px;
+      margin: -32px auto 48px;
+      padding: 0 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      margin-bottom: 18px;
+    }
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .nav button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      background: #e2eafc;
+      color: #1d4ed8;
+      font-size: 15px;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .nav button.active {
+      background: #1d4ed8;
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(29, 78, 216, 0.35);
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #111827;
+    }
+    .activity-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .activity-card:hover {
+      border-color: #1d4ed8;
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    form {
+      display: grid;
+      gap: 12px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #475569;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-primary {
+      background: #1d4ed8;
+      color: #fff;
+    }
+    .btn-outline {
+      background: #fff;
+      color: #1d4ed8;
+      border: 1px solid #1d4ed8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 8px;
+      text-align: left;
+    }
+    th {
+      color: #555;
+      background: #f9fafb;
+    }
+    .status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #fff;
+    }
+    .status.success { background: #16a34a; }
+    .status.pending { background: #d97706; }
+    .status.fail { background: #dc2626; }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+    }
+    .toast.show {
+      opacity: 0.95;
+      pointer-events: auto;
+    }
+    .qr {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background: repeating-linear-gradient(
+        45deg,
+        #1d4ed8,
+        #1d4ed8 10px,
+        #f0f4ff 10px,
+        #f0f4ff 20px
+      );
+      margin: 12px auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .qr::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 4px solid #fff;
+    }
+    .flex {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .flex > div {
+      flex: 1 1 280px;
+    }
+    @media (max-width: 600px) {
+      .nav {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+      .flex {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>公益沙龙报名签到轻应用原型</h1>
+    <p>基于 PRD 制作的交互示意，可模拟报名、签到与数据导出核心流程</p>
+  </header>
+  <main>
+    <div class="card">
+      <div class="nav">
+        <button class="active" data-target="user-view">用户端体验</button>
+        <button data-target="admin-activities">管理员活动管理</button>
+        <button data-target="admin-registration">报名 & 审核</button>
+        <button data-target="admin-checkin">签到 & 现场管理</button>
+        <button data-target="admin-export">数据导出</button>
+      </div>
+    </div>
+
+    <section id="user-view" class="card section active">
+      <h2>用户端：活动详情 & 报名</h2>
+      <div class="flex">
+        <div>
+          <div class="activity-card">
+            <span class="tag">教育 · 公益</span>
+            <strong>社区环境守护沙龙</strong>
+            <span>2025年12月12日 14:00-17:00</span>
+            <span>上海市徐汇区漕溪北路 X 号公益空间</span>
+            <small>名额剩余：15 / 80</small>
+            <p>围绕校园与社区协作的低碳行动，让更多年轻人参与可持续计划。</p>
+            <div class="actions">
+              <button class="btn btn-primary" onclick="switchView('user-form');">立即报名</button>
+              <button class="btn btn-outline" onclick="alert('已复制活动链接');">复制链接</button>
+            </div>
+          </div>
+          <div class="activity-card">
+            <span class="tag">医疗 · 公益</span>
+            <strong>守护银发族心理健康</strong>
+            <span>2025年12月26日 19:00-21:00</span>
+            <span>线上 + 线下同步</span>
+            <small>报名开放中 · 审核制</small>
+            <p>由心理咨询师与志愿者联合分享如何长期陪伴老人。</p>
+          </div>
+        </div>
+        <div id="user-form" class="activity-card" style="flex:1 1 320px;">
+          <h3>报名表单（可配置字段）</h3>
+          <form id="signup-form">
+            <div>
+              <label>姓名 *</label>
+              <input required name="name" placeholder="请输入真实姓名">
+            </div>
+            <div>
+              <label>手机号 *</label>
+              <input required name="phone" type="tel" pattern="^1\\d{10}$" placeholder="11 位手机号">
+            </div>
+            <div>
+              <label>邮箱</label>
+              <input name="email" type="email" placeholder="用于接收提醒">
+            </div>
+            <div>
+              <label>所属机构/学校</label>
+              <input name="org" placeholder="选填">
+            </div>
+            <div>
+              <label>参与动机</label>
+              <textarea name="motivation" placeholder="有助于现场分组"></textarea>
+            </div>
+            <div>
+              <label>来源渠道 *</label>
+              <select name="channel" required>
+                <option value="">请选择</option>
+                <option>朋友推荐</option>
+                <option>社交媒体</option>
+                <option>社区公告</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" required>
+                我已阅读并同意《隐私说明》
+              </label>
+            </div>
+            <button class="btn btn-primary" type="submit">提交报名</button>
+          </form>
+        </div>
+        <div id="user-success" class="activity-card" style="display:none;">
+          <h3>报名成功！（自动通过示例）</h3>
+          <p>已为你保留席位，可凭二维码到场签到。</p>
+          <div class="qr"></div>
+          <p style="text-align:center;">报名编号：#A082</p>
+          <div class="actions" style="justify-content:center;">
+            <button class="btn btn-outline" onclick="alert('二维码已保存');">保存二维码</button>
+            <button class="btn btn-outline" onclick="alert('已加入日历');">添加到日历</button>
+          </div>
+          <small>可回到“查看报名”修改信息（截止时间前）。</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-activities" class="card section">
+      <h2>管理员：活动列表 & 配置</h2>
+      <div class="actions" style="margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="toast('打开新建活动弹窗');">+ 新建活动</button>
+        <button class="btn btn-outline" onclick="toast('批量导入模板');">导入模板</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>活动名称</th>
+            <th>时间</th>
+            <th>报名状态</th>
+            <th>人数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>社区环境守护沙龙</td>
+            <td>12/12 14:00</td>
+            <td><span class="status success">报名中</span></td>
+            <td>65 / 80</td>
+            <td><button class="btn btn-outline" onclick="switchSection('admin-registration');">管理</button></td>
+          </tr>
+          <tr>
+            <td>银发族心理健康</td>
+            <td>12/26 19:00</td>
+            <td><span class="status pending">审核中</span></td>
+            <td>32 / 60</td>
+            <td><button class="btn btn-outline">管理</button></td>
+          </tr>
+          <tr>
+            <td>青年志愿者入门班</td>
+            <td>11/20 10:00</td>
+            <td><span class="status fail">已结束</span></td>
+            <td>120 / 120</td>
+            <td><button class="btn btn-outline">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="admin-registration" class="card section">
+      <h2>管理员：报名列表 & 审核</h2>
+      <div class="flex">
+        <div>
+          <label>快速筛选</label>
+          <div class="actions" style="margin:8px 0;">
+            <button class="btn btn-outline" onclick="toast('筛选待审核');">待审核 (3)</button>
+            <button class="btn btn-outline" onclick="toast('筛选已通过');">已通过</button>
+            <button class="btn btn-outline" onclick="toast('筛选已拒绝');">已拒绝</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>手机号</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>林晓彤</td>
+                <td>138****6721</td>
+                <td><span class="status pending">待审核</span></td>
+                <td>
+                  <button class="btn btn-outline" onclick="toast('已通过林晓彤');">通过</button>
+                  <button class="btn btn-outline" onclick="toast('已拒绝林晓彤');">拒绝</button>
+                </td>
+              </tr>
+              <tr>
+                <td>陈子越</td>
+                <td>186****0215</td>
+                <td><span class="status success">已通过</span></td>
+                <td><button class="btn btn-outline">查看</button></td>
+              </tr>
+              <tr>
+                <td>王梓沫</td>
+                <td>159****8890</td>
+                <td><span class="status success">已通过</span></td>
+                <td><button class="btn btn-outline" onclick="toast('已发送提醒');">发提醒</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>报名详情（示意）</h3>
+          <div class="activity-card">
+            <p><strong>姓名：</strong>林晓彤</p>
+            <p><strong>机构：</strong>同济大学绿色社团</p>
+            <p><strong>动机：</strong>希望了解社区零废弃案例</p>
+            <p><strong>备注：</strong>对接媒体采访</p>
+            <div class="actions">
+              <button class="btn btn-primary" onclick="toast('已通过并发送短信');">通过并通知</button>
+              <button class="btn btn-outline" onclick="toast('已拒绝');">拒绝</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-checkin" class="card section">
+      <h2>管理员：签到 & 现场管理</h2>
+      <div class="flex">
+        <div>
+          <h3>签到入口（海报二维码示意）</h3>
+          <div class="activity-card" style="text-align:center;">
+            <div class="qr"></div>
+            <p>工作人员可打印此二维码放在签到桌</p>
+            <button class="btn btn-outline" onclick="toast('二维码已下载');">下载二维码</button>
+          </div>
+          <h3>手机号 / 姓名搜索签到</h3>
+          <form id="search-form">
+            <input placeholder="输入手机号或姓名">
+            <button class="btn btn-primary" type="submit" style="margin-top:8px;">搜索</button>
+          </form>
+          <div id="search-result" style="display:none;" class="activity-card">
+            <strong>王梓沫</strong>
+            <p>报名状态：已通过</p>
+            <p>签到状态：未签到</p>
+            <button class="btn btn-primary" onclick="markCheckin(this);">立即签到</button>
+          </div>
+        </div>
+        <div>
+          <h3>签到数据概览</h3>
+          <div class="activity-card">
+            <p>报名人数：80</p>
+            <p>已签到：52</p>
+            <p>签到率：65%</p>
+            <p>临时报名：4 人</p>
+            <button class="btn btn-outline" onclick="toast('实时刷新');">刷新</button>
+          </div>
+          <h3>签到列表（实时更新）</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>签到时间</th>
+                <th>方式</th>
+              </tr>
+            </thead>
+            <tbody id="checkin-list">
+              <tr>
+                <td>陈子越</td>
+                <td>13:45</td>
+                <td>二维码</td>
+              </tr>
+              <tr>
+                <td>刘语桐</td>
+                <td>13:52</td>
+                <td>手机号</td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="btn btn-outline" style="margin-top:8px;" onclick="addWalkIn();">+ 临时报名并签到</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-export" class="card section">
+      <h2>管理员：数据导出 & 复盘</h2>
+      <div class="flex">
+        <div>
+          <h3>导出配置</h3>
+          <form id="export-form">
+            <label>导出范围</label>
+            <select>
+              <option>全部报名</option>
+              <option>已签到</option>
+              <option>未签到</option>
+            </select>
+            <label>字段选择</label>
+            <label><input type="checkbox" checked> 姓名</label>
+            <label><input type="checkbox" checked> 手机号</label>
+            <label><input type="checkbox" checked> 签到状态</label>
+            <label><input type="checkbox" checked> 来源渠道</label>
+            <label><input type="checkbox"> 备注</label>
+            <button class="btn btn-primary" type="submit" style="margin-top:12px;">导出 Excel</button>
+          </form>
+        </div>
+        <div>
+          <h3>数据概览</h3>
+          <div class="activity-card">
+            <p>报名总数：80</p>
+            <p>通过率：92%</p>
+            <p>签到率：65%</p>
+            <p>渠道占比：社交媒体 40% / 朋友推荐 35% / 其他 25%</p>
+            <button class="btn btn-outline" onclick="toast('跳转至分析看板');">查看分析看板</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const navButtons = document.querySelectorAll(".nav button");
+    const sections = document.querySelectorAll(".section");
+    navButtons.forEach(btn => btn.addEventListener("click", () => {
+      navButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(btn.dataset.target).classList.add("active");
+    }));
+
+    function switchView(targetId) {
+      document.getElementById("user-form").style.display =
+        targetId === "user-form" ? "block" : "none";
+      document.getElementById("user-success").style.display =
+        targetId === "user-success" ? "block" : "none";
+    }
+
+    function switchSection(sectionId) {
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(sectionId).classList.add("active");
+      navButtons.forEach(b => {
+        b.classList.toggle("active", b.dataset.target === sectionId);
+      });
+    }
+
+    document.getElementById("signup-form").addEventListener("submit", e => {
+      e.preventDefault();
+      document.getElementById("user-form").style.display = "none";
+      document.getElementById("user-success").style.display = "block";
+      toast("报名成功，二维码已生成");
+    });
+
+    document.getElementById("search-form").addEventListener("submit", e => {
+      e.preventDefault();
+      document.getElementById("search-result").style.display = "block";
+      toast("找到 1 条匹配记录");
+    });
+
+    function markCheckin(btn) {
+      btn.disabled = true;
+      btn.textContent = "已签到";
+      const tbody = document.getElementById("checkin-list");
+      const row = document.createElement("tr");
+      row.innerHTML = "<td>王梓沫</td><td>14:02</td><td>手机号</td>";
+      tbody.prepend(row);
+      toast("签到完成");
+    }
+
+    function addWalkIn() {
+      const tbody = document.getElementById("checkin-list");
+      const name = "临时报名 " + (tbody.children.length + 1);
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${name}</td><td>14:10</td><td>现场报名</td>`;
+      tbody.prepend(row);
+      toast("已创建临时报名并签到");
+    }
+
+    document.getElementById("export-form").addEventListener("submit", e => {
+      e.preventDefault();
+      toast("正在生成 Excel...");
+      setTimeout(() => toast("导出成功，可下载 2025-12-01.xlsx"), 1200);
+    });
+
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+  </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>公益沙龙报名签到轻应用原型</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #1f2933;
+      background: #f5f6fa;
+    }
+    body {
+      margin: 0;
+      background: #f5f6fa;
+    }
+    header {
+      background: linear-gradient(120deg, #42a5f5, #38c172);
+      color: #fff;
+      padding: 24px 16px 40px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    main {
+      max-width: 1100px;
+      margin: -32px auto 48px;
+      padding: 0 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      margin-bottom: 18px;
+    }
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .nav button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      background: #e2eafc;
+      color: #1d4ed8;
+      font-size: 15px;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .nav button.active {
+      background: #1d4ed8;
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(29, 78, 216, 0.35);
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #111827;
+    }
+    .activity-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .activity-card:hover {
+      border-color: #1d4ed8;
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    form {
+      display: grid;
+      gap: 12px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #475569;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-primary {
+      background: #1d4ed8;
+      color: #fff;
+    }
+    .btn-outline {
+      background: #fff;
+      color: #1d4ed8;
+      border: 1px solid #1d4ed8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 8px;
+      text-align: left;
+    }
+    th {
+      color: #555;
+      background: #f9fafb;
+    }
+    .status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #fff;
+    }
+    .status.success { background: #16a34a; }
+    .status.pending { background: #d97706; }
+    .status.fail { background: #dc2626; }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+    }
+    .toast.show {
+      opacity: 0.95;
+      pointer-events: auto;
+    }
+    .qr {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background: repeating-linear-gradient(
+        45deg,
+        #1d4ed8,
+        #1d4ed8 10px,
+        #f0f4ff 10px,
+        #f0f4ff 20px
+      );
+      margin: 12px auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .qr::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 4px solid #fff;
+    }
+    .flex {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .flex > div {
+      flex: 1 1 280px;
+    }
+    @media (max-width: 600px) {
+      .nav {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+      .flex {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>公益沙龙报名签到轻应用原型</h1>
+    <p>基于 PRD 制作的交互示意，可模拟报名、签到与数据导出核心流程</p>
+  </header>
+  <main>
+    <div class="card">
+      <div class="nav">
+        <button class="active" data-target="user-view">用户端体验</button>
+        <button data-target="admin-activities">管理员活动管理</button>
+        <button data-target="admin-registration">报名 & 审核</button>
+        <button data-target="admin-checkin">签到 & 现场管理</button>
+        <button data-target="admin-export">数据导出</button>
+      </div>
+    </div>
+
+    <section id="user-view" class="card section active">
+      <h2>用户端：活动详情 & 报名</h2>
+      <div class="flex">
+        <div>
+          <div class="activity-card">
+            <span class="tag">教育 · 公益</span>
+            <strong>社区环境守护沙龙</strong>
+            <span>2025年12月12日 14:00-17:00</span>
+            <span>上海市徐汇区漕溪北路 X 号公益空间</span>
+            <small>名额剩余：15 / 80</small>
+            <p>围绕校园与社区协作的低碳行动，让更多年轻人参与可持续计划。</p>
+            <div class="actions">
+              <button class="btn btn-primary" onclick="switchView('user-form');">立即报名</button>
+              <button class="btn btn-outline" onclick="alert('已复制活动链接');">复制链接</button>
+            </div>
+          </div>
+          <div class="activity-card">
+            <span class="tag">医疗 · 公益</span>
+            <strong>守护银发族心理健康</strong>
+            <span>2025年12月26日 19:00-21:00</span>
+            <span>线上 + 线下同步</span>
+            <small>报名开放中 · 审核制</small>
+            <p>由心理咨询师与志愿者联合分享如何长期陪伴老人。</p>
+          </div>
+        </div>
+        <div id="user-form" class="activity-card" style="flex:1 1 320px;">
+          <h3>报名表单（可配置字段）</h3>
+          <form id="signup-form">
+            <div>
+              <label>姓名 *</label>
+              <input required name="name" placeholder="请输入真实姓名">
+            </div>
+            <div>
+              <label>手机号 *</label>
+              <input required name="phone" type="tel" pattern="^1\\d{10}$" placeholder="11 位手机号">
+            </div>
+            <div>
+              <label>邮箱</label>
+              <input name="email" type="email" placeholder="用于接收提醒">
+            </div>
+            <div>
+              <label>所属机构/学校</label>
+              <input name="org" placeholder="选填">
+            </div>
+            <div>
+              <label>参与动机</label>
+              <textarea name="motivation" placeholder="有助于现场分组"></textarea>
+            </div>
+            <div>
+              <label>来源渠道 *</label>
+              <select name="channel" required>
+                <option value="">请选择</option>
+                <option>朋友推荐</option>
+                <option>社交媒体</option>
+                <option>社区公告</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" required>
+                我已阅读并同意《隐私说明》
+              </label>
+            </div>
+            <button class="btn btn-primary" type="submit">提交报名</button>
+          </form>
+        </div>
+        <div id="user-success" class="activity-card" style="display:none;">
+          <h3>报名成功！（自动通过示例）</h3>
+          <p>已为你保留席位，可凭二维码到场签到。</p>
+          <div class="qr"></div>
+          <p style="text-align:center;">报名编号：#A082</p>
+          <div class="actions" style="justify-content:center;">
+            <button class="btn btn-outline" onclick="alert('二维码已保存');">保存二维码</button>
+            <button class="btn btn-outline" onclick="alert('已加入日历');">添加到日历</button>
+          </div>
+          <small>可回到“查看报名”修改信息（截止时间前）。</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-activities" class="card section">
+      <h2>管理员：活动列表 & 配置</h2>
+      <div class="actions" style="margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="toast('打开新建活动弹窗');">+ 新建活动</button>
+        <button class="btn btn-outline" onclick="toast('批量导入模板');">导入模板</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>活动名称</th>
+            <th>时间</th>
+            <th>报名状态</th>
+            <th>人数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>社区环境守护沙龙</td>
+            <td>12/12 14:00</td>
+            <td><span class="status success">报名中</span></td>
+            <td>65 / 80</td>
+            <td><button class="btn btn-outline" onclick="switchSection('admin-registration');">管理</button></td>
+          </tr>
+          <tr>
+            <td>银发族心理健康</td>
+            <td>12/26 19:00</td>
+            <td><span class="status pending">审核中</span></td>
+            <td>32 / 60</td>
+            <td><button class="btn btn-outline">管理</button></td>
+          </tr>
+          <tr>
+            <td>青年志愿者入门班</td>
+            <td>11/20 10:00</td>
+            <td><span class="status fail">已结束</span></td>
+            <td>120 / 120</td>
+            <td><button class="btn btn-outline">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="admin-registration" class="card section">
+      <h2>管理员：报名列表 & 审核</h2>
+      <div class="flex">
+        <div>
+          <label>快速筛选</label>
+          <div class="actions" style="margin:8px 0;">
+            <button class="btn btn-outline" onclick="toast('筛选待审核');">待审核 (3)</button>
+            <button class="btn btn-outline" onclick="toast('筛选已通过');">已通过</button>
+            <button class="btn btn-outline" onclick="toast('筛选已拒绝');">已拒绝</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>手机号</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>林晓彤</td>
+                <td>138****6721</td>
+                <td><span class="status pending">待审核</span></td>
+                <td>
+                  <button class="btn btn-outline" onclick="toast('已通过林晓彤');">通过</button>
+                  <button class="btn btn-outline" onclick="toast('已拒绝林晓彤');">拒绝</button>
+                </td>
+              </tr>
+              <tr>
+                <td>陈子越</td>
+                <td>186****0215</td>
+                <td><span class="status success">已通过</span></td>
+                <td><button class="btn btn-outline">查看</button></td>
+              </tr>
+              <tr>
+                <td>王梓沫</td>
+                <td>159****8890</td>
+                <td><span class="status success">已通过</span></td>
+                <td><button class="btn btn-outline" onclick="toast('已发送提醒');">发提醒</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>报名详情（示意）</h3>
+          <div class="activity-card">
+            <p><strong>姓名：</strong>林晓彤</p>
+            <p><strong>机构：</strong>同济大学绿色社团</p>
+            <p><strong>动机：</strong>希望了解社区零废弃案例</p>
+            <p><strong>备注：</strong>对接媒体采访</p>
+            <div class="actions">
+              <button class="btn btn-primary" onclick="toast('已通过并发送短信');">通过并通知</button>
+              <button class="btn btn-outline" onclick="toast('已拒绝');">拒绝</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-checkin" class="card section">
+      <h2>管理员：签到 & 现场管理</h2>
+      <div class="flex">
+        <div>
+          <h3>签到入口（海报二维码示意）</h3>
+          <div class="activity-card" style="text-align:center;">
+            <div class="qr"></div>
+            <p>工作人员可打印此二维码放在签到桌</p>
+            <button class="btn btn-outline" onclick="toast('二维码已下载');">下载二维码</button>
+          </div>
+          <h3>手机号 / 姓名搜索签到</h3>
+          <form id="search-form">
+            <input placeholder="输入手机号或姓名">
+            <button class="btn btn-primary" type="submit" style="margin-top:8px;">搜索</button>
+          </form>
+          <div id="search-result" style="display:none;" class="activity-card">
+            <strong>王梓沫</strong>
+            <p>报名状态：已通过</p>
+            <p>签到状态：未签到</p>
+            <button class="btn btn-primary" onclick="markCheckin(this);">立即签到</button>
+          </div>
+        </div>
+        <div>
+          <h3>签到数据概览</h3>
+          <div class="activity-card">
+            <p>报名人数：80</p>
+            <p>已签到：52</p>
+            <p>签到率：65%</p>
+            <p>临时报名：4 人</p>
+            <button class="btn btn-outline" onclick="toast('实时刷新');">刷新</button>
+          </div>
+          <h3>签到列表（实时更新）</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>签到时间</th>
+                <th>方式</th>
+              </tr>
+            </thead>
+            <tbody id="checkin-list">
+              <tr>
+                <td>陈子越</td>
+                <td>13:45</td>
+                <td>二维码</td>
+              </tr>
+              <tr>
+                <td>刘语桐</td>
+                <td>13:52</td>
+                <td>手机号</td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="btn btn-outline" style="margin-top:8px;" onclick="addWalkIn();">+ 临时报名并签到</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-export" class="card section">
+      <h2>管理员：数据导出 & 复盘</h2>
+      <div class="flex">
+        <div>
+          <h3>导出配置</h3>
+          <form id="export-form">
+            <label>导出范围</label>
+            <select>
+              <option>全部报名</option>
+              <option>已签到</option>
+              <option>未签到</option>
+            </select>
+            <label>字段选择</label>
+            <label><input type="checkbox" checked> 姓名</label>
+            <label><input type="checkbox" checked> 手机号</label>
+            <label><input type="checkbox" checked> 签到状态</label>
+            <label><input type="checkbox" checked> 来源渠道</label>
+            <label><input type="checkbox"> 备注</label>
+            <button class="btn btn-primary" type="submit" style="margin-top:12px;">导出 Excel</button>
+          </form>
+        </div>
+        <div>
+          <h3>数据概览</h3>
+          <div class="activity-card">
+            <p>报名总数：80</p>
+            <p>通过率：92%</p>
+            <p>签到率：65%</p>
+            <p>渠道占比：社交媒体 40% / 朋友推荐 35% / 其他 25%</p>
+            <button class="btn btn-outline" onclick="toast('跳转至分析看板');">查看分析看板</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const navButtons = document.querySelectorAll(".nav button");
+    const sections = document.querySelectorAll(".section");
+    navButtons.forEach(btn => btn.addEventListener("click", () => {
+      navButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(btn.dataset.target).classList.add("active");
+    }));
+
+    function switchView(targetId) {
+      document.getElementById("user-form").style.display =
+        targetId === "user-form" ? "block" : "none";
+      document.getElementById("user-success").style.display =
+        targetId === "user-success" ? "block" : "none";
+    }
+
+    function switchSection(sectionId) {
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(sectionId).classList.add("active");
+      navButtons.forEach(b => {
+        b.classList.toggle("active", b.dataset.target === sectionId);
+      });
+    }
+
+    document.getElementById("signup-form").addEventListener("submit", e => {
+      e.preventDefault();
+      document.getElementById("user-form").style.display = "none";
+      document.getElementById("user-success").style.display = "block";
+      toast("报名成功，二维码已生成");
+    });
+
+    document.getElementById("search-form").addEventListener("submit", e => {
+      e.preventDefault();
+      document.getElementById("search-result").display = "block";
+      toast("找到 1 条匹配记录");
+    });
+
+    function markCheckin(btn) {
+      btn.disabled = true;
+      btn.textContent = "已签到";
+      const tbody = document.getElementById("checkin-list");
+      const row = document.createElement("tr");
+      row.innerHTML = "<td>王梓沫</td><td>14:02</td><td>手机号</td>";
+      tbody.prepend(row);
+      toast("签到完成");
+    }
+
+    function addWalkIn() {
+      const tbody = document.getElementById("checkin-list");
+      const name = "临时报名 " + (tbody.children.length + 1);
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${name}</td><td>14:10</td><td>现场报名</td>`;
+      tbody.prepend(row);
+      toast("已创建临时报名并签到");
+    }
+
+    document.getElementById("export-form").addEventListener("submit", e => {
+      e.preventDefault();
+      toast("正在生成 Excel...");
+      setTimeout(() => toast("导出成功，可下载 2025-12-01.xlsx"), 1200);
+    });
+
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>公益沙龙报名签到轻应用原型</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #1f2933;
+      background: #f5f6fa;
+    }
+    body {
+      margin: 0;
+      background: #f5f6fa;
+    }
+    header {
+      background: linear-gradient(120deg, #42a5f5, #38c172);
+      color: #fff;
+      padding: 24px 16px 40px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    main {
+      max-width: 1100px;
+      margin: -32px auto 48px;
+      padding: 0 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      margin-bottom: 18px;
+    }
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .nav button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      background: #e2eafc;
+      color: #1d4ed8;
+      font-size: 15px;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .nav button.active {
+      background: #1d4ed8;
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(29, 78, 216, 0.35);
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #111827;
+    }
+    .activity-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .activity-card:hover {
+      border-color: #1d4ed8;
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    form {
+      display: grid;
+      gap: 12px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #475569;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-primary {
+      background: #1d4ed8;
+      color: #fff;
+    }
+    .btn-outline {
+      background: #fff;
+      color: #1d4ed8;
+      border: 1px solid #1d4ed8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 8px;
+      text-align: left;
+    }
+    th {
+      color: #555;
+      background: #f9fafb;
+    }
+    .status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #fff;
+    }
+    .status.success { background: #16a34a; }
+    .status.pending { background: #d97706; }
+    .status.fail { background: #dc2626; }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+    }
+    .toast.show {
+      opacity: 0.95;
+      pointer-events: auto;
+    }
+    .qr {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background: repeating-linear-gradient(
+        45deg,
+        #1d4ed8,
+        #1d4ed8 10px,
+        #f0f4ff 10px,
+        #f0f4ff 20px
+      );
+      margin: 12px auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .qr::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 4px solid #fff;
+    }
+    .flex {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .flex > div {
+      flex: 1 1 280px;
+    }
+    @media (max-width: 600px) {
+      .nav {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+      .flex {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>公益沙龙报名签到轻应用原型</h1>
+    <p>基于 PRD 制作的交互示意，可模拟报名、签到与数据导出核心流程</p>
+  </header>
+  <main>
+    <div class="card">
+      <div class="nav">
+        <button class="active" data-target="user-view">用户端体验</button>
+        <button data-target="admin-activities">管理员活动管理</button>
+        <button data-target="admin-registration">报名 & 审核</button>
+        <button data-target="admin-checkin">签到 & 现场管理</button>
+        <button data-target="admin-export">数据导出</button>
+      </div>
+    </div>
+
+    <section id="user-view" class="card section active">
+      <h2>用户端：活动详情 & 报名</h2>
+      <div class="flex">
+        <div>
+          <div class="activity-card">
+            <span class="tag">教育 · 公益</span>
+            <strong>社区环境守护沙龙</strong>
+            <span>2025年12月12日 14:00-17:00</span>
+            <span>上海市徐汇区漕溪北路 X 号公益空间</span>
+            <small>名额剩余：15 / 80</small>
+            <p>围绕校园与社区协作的低碳行动，让更多年轻人参与可持续计划。</p>
+            <div class="actions">
+              <button class="btn btn-primary" onclick="switchView('user-form');">立即报名</button>
+              <button class="btn btn-outline" onclick="alert('已复制活动链接');">复制链接</button>
+            </div>
+          </div>
+          <div class="activity-card">
+            <span class="tag">医疗 · 公益</span>
+            <strong>守护银发族心理健康</strong>
+            <span>2025年12月26日 19:00-21:00</span>
+            <span>线上 + 线下同步</span>
+            <small>报名开放中 · 审核制</small>
+            <p>由心理咨询师与志愿者联合分享如何长期陪伴老人。</p>
+          </div>
+        </div>
+        <div id="user-form" class="activity-card" style="flex:1 1 320px;">
+          <h3>报名表单（可配置字段）</h3>
+          <form id="signup-form">
+            <div>
+              <label>姓名 *</label>
+              <input required name="name" placeholder="请输入真实姓名">
+            </div>
+            <div>
+              <label>手机号 *</label>
+              <input required name="phone" type="tel" pattern="^1\\d{10}$" placeholder="11 位手机号">
+            </div>
+            <div>
+              <label>邮箱</label>
+              <input name="email" type="email" placeholder="用于接收提醒">
+            </div>
+            <div>
+              <label>所属机构/学校</label>
+              <input name="org" placeholder="选填">
+            </div>
+            <div>
+              <label>参与动机</label>
+              <textarea name="motivation" placeholder="有助于现场分组"></textarea>
+            </div>
+            <div>
+              <label>来源渠道 *</label>
+              <select name="channel" required>
+                <option value="">请选择</option>
+                <option>朋友推荐</option>
+                <option>社交媒体</option>
+                <option>社区公告</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" required>
+                我已阅读并同意《隐私说明》
+              </label>
+            </div>
+            <button class="btn btn-primary" type="submit">提交报名</button>
+          </form>
+        </div>
+        <div id="user-success" class="activity-card" style="display:none;">
+          <h3>报名成功！（自动通过示例）</h3>
+          <p>已为你保留席位，可凭二维码到场签到。</p>
+          <div class="qr"></div>
+          <p style="text-align:center;">报名编号：#A082</p>
+          <div class="actions" style="justify-content:center;">
+            <button class="btn btn-outline" onclick="alert('二维码已保存');">保存二维码</button>
+            <button class="btn btn-outline" onclick="alert('已加入日历');">添加到日历</button>
+          </div>
+          <small>可回到“查看报名”修改信息（截止时间前）。</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-activities" class="card section">
+      <h2>管理员：活动列表 & 配置</h2>
+      <div class="actions" style="margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="toast('打开新建活动弹窗');">+ 新建活动</button>
+        <button class="btn btn-outline" onclick="toast('批量导入模板');">导入模板</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>活动名称</th>
+            <th>时间</th>
+            <th>报名状态</th>
+            <th>人数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>社区环境守护沙龙</td>
+            <td>12/12 14:00</td>
+            <td><span class="status success">报名中</span></td>
+            <td>65 / 80</td>
+            <td><button class="btn btn-outline" onclick="switchView('admin-registration');">管理</button></td>
+          </tr>
+          <tr>
+            <td>银发族心理健康</td>
+            <td>12/26 19:00</td>
+            <td><span class="status pending">审核中</span></td>
+            <td>32 / 60</td>
+            <td><button class="btn btn-outline">管理</button></td>
+          </tr>
+          <tr>
+            <td>青年志愿者入门班</td>
+            <td>11/20 10:00</td>
+            <td><span class="status fail">已结束</span></td>
+            <td>120 / 120</td>
+            <td><button class="btn btn-outline">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="admin-registration" class="card section">
+      <h2>管理员：报名列表 & 审核</h2>
+      <div class="flex">
+        <div>
+          <label>快速筛选</label>
+          <div class="actions" style="margin:8px 0;">
+            <button class="btn btn-outline" onclick="toast('筛选待审核');">待审核 (3)</button>
+            <button class="btn btn-outline" onclick="toast('筛选已通过');">已通过</button>
+            <button class="btn btn-outline" onclick="toast('筛选已拒绝');">已拒绝</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>手机号</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>林晓彤</td>
+                <td>138****6721</td>
+                <td><span class="status pending">待审核</span></td>
+                <td>
+                  <button class="btn btn-outline" onclick="toast('已通过林晓彤');">通过</button>
+                  <button class="btn btn-outline" onclick="toast('已拒绝林晓彤');">拒绝</button>
+                </td>
+              </tr>
+              <tr>
+                <td>陈子越</td>
+                <td>186****0215</td>
+                <td><span class="status success">已通过</span></td>
+                <td><button class="btn btn-outline">查看</button></td>
+              </tr>
+              <tr>
+                <td>王梓沫</td>
+                <td>159****8890</td>
+                <td><span class="status success">已通过</span></td>
+                <td><button class="btn btn-outline" onclick="toast('已发送提醒');">发提醒</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>报名详情（示意）</h3>
+          <div class="activity-card">
+            <p><strong>姓名：</strong>林晓彤</p>
+            <p><strong>机构：</strong>同济大学绿色社团</p>
+            <p><strong>动机：</strong>希望了解社区零废弃案例</p>
+            <p><strong>备注：</strong>对接媒体采访</p>
+            <div class="actions">
+              <button class="btn btn-primary" onclick="toast('已通过并发送短信');">通过并通知</button>
+              <button class="btn btn-outline" onclick="toast('已拒绝');">拒绝</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-checkin" class="card section">
+      <h2>管理员：签到 & 现场管理</h2>
+      <div class="flex">
+        <div>
+          <h3>签到入口（海报二维码示意）</h3>
+          <div class="activity-card" style="text-align:center;">
+            <div class="qr"></div>
+            <p>工作人员可打印此二维码放在签到桌</p>
+            <button class="btn btn-outline" onclick="toast('二维码已下载');">下载二维码</button>
+          </div>
+          <h3>手机号 / 姓名搜索签到</h3>
+          <form id="search-form">
+            <input placeholder="输入手机号或姓名">
+            <button class="btn btn-primary" type="submit" style="margin-top:8px;">搜索</button>
+          </form>
+          <div id="search-result" style="display:none;" class="activity-card">
+            <strong>王梓沫</strong>
+            <p>报名状态：已通过</p>
+            <p>签到状态：未签到</p>
+            <button class="btn btn-primary" onclick="markCheckin(this);">立即签到</button>
+          </div>
+        </div>
+        <div>
+          <h3>签到数据概览</h3>
+          <div class="activity-card">
+            <p>报名人数：80</p>
+            <p>已签到：52</p>
+            <p>签到率：65%</p>
+            <p>临时报名：4 人</p>
+            <button class="btn btn-outline" onclick="toast('实时刷新');">刷新</button>
+          </div>
+          <h3>签到列表（实时更新）</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>签到时间</th>
+                <th>方式</th>
+              </tr>
+            </thead>
+            <tbody id="checkin-list">
+              <tr>
+                <td>陈子越</td>
+                <td>13:45</td>
+                <td>二维码</td>
+              </tr>
+              <tr>
+                <td>刘语桐</td>
+                <td>13:52</td>
+                <td>手机号</td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="btn btn-outline" style="margin-top:8px;" onclick="addWalkIn();">+ 临时报名并签到</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-export" class="card section">
+      <h2>管理员：数据导出 & 复盘</h2>
+      <div class="flex">
+        <div>
+          <h3>导出配置</h3>
+          <form id="export-form">
+            <label>导出范围</label>
+            <select>
+              <option>全部报名</option>
+              <option>已签到</option>
+              <option>未签到</option>
+            </select>
+            <label>字段选择</label>
+            <label><input type="checkbox" checked> 姓名</label>
+            <label><input type="checkbox" checked> 手机号</label>
+            <label><input type="checkbox" checked> 签到状态</label>
+            <label><input type="checkbox" checked> 来源渠道</label>
+            <label><input type="checkbox"> 备注</label>
+            <button class="btn btn-primary" type="submit" style="margin-top:12px;">导出 Excel</button>
+          </form>
+        </div>
+        <div>
+          <h3>数据概览</h3>
+          <div class="activity-card">
+            <p>报名总数：80</p>
+            <p>通过率：92%</p>
+            <p>签到率：65%</p>
+            <p>渠道占比：社交媒体 40% / 朋友推荐 35% / 其他 25%</p>
+            <button class="btn btn-outline" onclick="toast('跳转至分析看板');">查看分析看板</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const navButtons = document.querySelectorAll(".nav button");
+    const sections = document.querySelectorAll(".section");
+    navButtons.forEach(btn => btn.addEventListener("click", () => {
+      navButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(btn.dataset.target).classList.add("active");
+    }));
+
+    function switchView(targetId) {
+      navButtons.forEach(b => {
+        b.classList.toggle("active", b.dataset.target === "user-view");
+      });
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById("user-view").classList.add("active");
+      document.getElementById("user-form").style.display = targetId === "user-form" ? "block" : "none";
+      document.getElementById("user-success").style.display = targetId === "user-success" ? "block" : "none";
+    }
+
+    document.getElementById("signup-form").addEventListener("submit", e => {
+      e.preventDefault();
+      document.getElementById("user-form").style.display = "none";
+      document.getElementById("user-success").style.display = "block";
+      toast("报名成功，二维码已生成");
+    });
+
+    document.getElementById("search-form").addEventListener("submit", e => {
+      e.preventDefault();
+      document.getElementById("search-result").style.display = "block";
+      toast("找到 1 条匹配记录");
+    });
+
+    function markCheckin(btn) {
+      btn.disabled = true;
+      btn.textContent = "已签到";
+      const tbody = document.getElementById("checkin-list");
+      const row = document.createElement("tr");
+      row.innerHTML = "<td>王梓沫</td><td>14:02</td><td>手机号</td>";
+      tbody.prepend(row);
+      toast("签到完成");
+    }
+
+    function addWalkIn() {
+      const tbody = document.getElementById("checkin-list");
+      const name = "临时报名 " + (tbody.children.length + 1);
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${name}</td><td>14:10</td><td>现场报名</td>`;
+      tbody.prepend(row);
+      toast("已创建临时报名并签到");
+    }
+
+    document.getElementById("export-form").addEventListener("submit", e => {
+      e.preventDefault();
+      toast("正在生成 Excel...");
+      setTimeout(() => toast("导出成功，可下载 2025-12-01.xlsx"), 1200);
+    });
+
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+  </script>
+</body>
+</html>
+
+
